@@ -1,0 +1,419 @@
+
+
+import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/framework.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:moneysender/providers/recenteTransaction_provider.dart';
+import 'package:moneysender/screen/QrCode.dart';
+import 'package:moneysender/screen/historiqueDePaye.dart';
+import 'package:moneysender/screen/voirPlus.dart';
+import 'package:moneysender/util/constant.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:sizer/sizer.dart';
+import 'ChoixReseau.dart';
+import 'Detail.dart';
+import 'connexion.dart';
+import 'drawers.dart';
+import 'flexibleApp.dart';
+
+class HomeMoneysender extends StatefulWidget {
+  final String? provider;
+  const HomeMoneysender({
+    Key? key,
+    this.provider,
+  }) : super(key: key);
+
+  @override
+  State<HomeMoneysender> createState() => _HomeMoneysenderState();
+}
+
+class _HomeMoneysenderState extends State<HomeMoneysender> {
+
+   late RecenteTransactionProvider recenteTransactionProvider;
+    gettransaction() {
+    recenteTransactionProvider.getRecenteTransaction();
+  }
+  @override
+  void initState() {
+    chekLogin();
+     recenteTransactionProvider = context.read<RecenteTransactionProvider>();
+     super.initState();
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      gettransaction();
+    });
+  }
+
+  void chekLogin() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String? val = pref.getString('access_token');
+    print('access_token');
+    print(val);
+    print('access_token');
+    if (val == null) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const Connexion(
+                  //  academicyear:widget.academicyear
+                  )));
+    }
+  }
+
+  List dataListTransactionRecent = [];
+  String? serial_number;
+
+ 
+
+  @override
+  Widget build(BuildContext context) {
+   
+    return Scaffold(
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FloatingActionButton.extended(
+            onPressed: () {
+              showModalBottomSheet(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Container(
+                      height: 50.h,
+                      width: MediaQuery.of(context).size.width,
+                      decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30),
+                      )),
+                    );
+                  });
+
+              // Future<void> _getListTransaction() async {
+              //   SharedPreferences pref = await SharedPreferences.getInstance();
+              //   String? access_token = pref.getString('access_token');
+
+              //   var url = "https://payvortex.doubleclic-tech.com/transactions/";
+
+              //   var response = await http.get(
+              //     Uri.parse(url),
+              //     headers: {
+              //       HttpHeaders.authorizationHeader: 'Bearer ${access_token}',
+              //     },
+              //   );
+
+              //   print("===response _getListTransaction ===");
+              //   print(response.body);
+              //   print(access_token);
+
+              //   print("===response _getListTransaction ===");
+              //   var jsonListTransactionRecent = jsonDecode(response.body);
+
+              //   print("//////////jsonListTransactionRecent///////////");
+              //   print(jsonListTransactionRecent);
+
+              //   print("//////////jsonListTransactionRecent///////////");
+
+              //   if (response.statusCode == 200) {
+              //     setState(() {
+              //       dataListTransactionRecent = jsonListTransactionRecent;
+              //     });
+              //   }
+              // }
+            },
+            backgroundColor: OrangeNorColor,
+            label: Text(
+              'Dernières transactions',
+              style: GoogleFonts.poppins(
+                  fontSize: 15,
+                  
+                  fontWeight: FontWeight.bold,
+                  color: VioletClairecouleur),
+            ),
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: EdgeInsets.only(left: 1.w, right: 1.w),
+        child: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Expanded(
+                  flex: 1,
+                  child: Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => Drawers()));
+                              },
+                              child: Container(
+                                height: 13.h,
+                                width: 13.w,
+                                decoration: BoxDecoration(
+                                  color: OrangeNorColor,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: VioletPureColor,
+                                  ),
+                                ),
+                                child: const Center(
+                                    child: Icon(
+                                  Icons.person_pin_circle_sharp,
+                                  color: Colors.white,
+                                )),
+                              ),
+                            ),
+                            Container(
+                              height: 10.h,
+                              width: 30.w,
+                              child: ListTile(
+                                title: Text(
+                                  "Pokou",
+                                  style: GoogleFonts.poppins(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                subtitle: Text(
+                                  "10245146",
+                                  style: GoogleFonts.poppins(
+                                      fontSize: 15, color: Colors.grey),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        Icon(
+                          Icons.notification_add,
+                          color: OrangeNorColor,
+                        )
+                      ],
+                    ),
+                  )),
+              Expanded(
+                  flex: 3,
+                  child: Container(
+                  
+                   child: MyFlexiableAppBar(),
+                  )),
+              Row(
+                children: [
+                  Text(
+                    "Nos services",
+                    style: GoogleFonts.poppins(
+                        fontSize: 20, fontWeight: FontWeight.bold),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 1.h,
+              ),
+              Expanded(
+                flex: 6,
+                child: Container(
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Column(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                   recenteTransactionProvider.getRecenteTransaction();
+                                  // Navigator.push(
+                                  //     context,
+                                  //     MaterialPageRoute(
+                                  //         builder: (context) =>
+                                  //             const ChoixReseau()));
+                                },
+                                child: Container(
+                                  height: 20.h,
+                                  width: 35.w,
+                                  decoration: BoxDecoration(
+                                      color: const Color.fromARGB(
+                                          255, 211, 211, 211),
+                                      borderRadius: BorderRadius.circular(30)),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Center(
+                                          child: Icon(
+                                        Icons.send_to_mobile_sharp,
+                                        color: OrangeNorColor,
+                                        size: 30,
+                                      )),
+                                      Text(
+                                       'Tranfert',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 15,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                           
+                              InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => const VoirPlus()));
+                                },
+                                child: Container(
+                                  height: 15.h,
+                                  width: 30.w,
+                                  decoration: BoxDecoration(
+                                      color: const Color.fromARGB(
+                                          255, 211, 211, 211),
+                                      borderRadius: BorderRadius.circular(20)),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Center(
+                                          child: Icon(
+                                        Icons.my_library_add_rounded,
+                                        color: OrangeNorColor,
+                                        size: 30,
+                                      )),
+                                     //recenteTransaction==null ?const Center():  
+                                     Text(
+                                       "T.Historique",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 15,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Column(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const Historiquedepayement()));
+                                },
+                                child: Container(
+                                  height: 15.h,
+                                  width: 30.w,
+                                  decoration: BoxDecoration(
+                                    
+                                      color: const Color.fromARGB(
+                                          255, 211, 211, 211),
+                                      borderRadius: BorderRadius.circular(20)),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Center(
+                                          child: Icon(
+                                        Icons.payment_outlined,
+                                        color: OrangeNorColor,
+                                        size: 30,
+                                      )),
+                                      Text(
+                                        "P.Historique",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 15,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => Qrcode(
+                                          serial_number: serial_number)));
+                                },
+                                child: Container(
+                                  height: 20.h,
+                                  width: 35.w,
+                                  decoration: BoxDecoration(
+                                      color: const Color.fromARGB(
+                                          255, 211, 211, 211),
+                                      borderRadius: BorderRadius.circular(30)),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Center(
+                                          child: Icon(
+                                        Icons.qr_code,
+                                        color: OrangeNorColor,
+                                        size: 30,
+                                      )),
+                                      Text(
+                                        "Qrcode",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 15,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+ Widget buildview() {
+    var controller = context.watch<RecenteTransactionProvider>();
+    if (controller.data == null) {
+      return Center(
+        child:  Text("Data not found"),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: controller.data!.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(controller.data![index].station.name!),
+          subtitle: Text(
+            controller.data![index].recipientContact,
+          ),
+          trailing: Text("${controller.data![index].amount}"),
+        );
+      },
+    );
+  }
+}
+
+
+
+                     
